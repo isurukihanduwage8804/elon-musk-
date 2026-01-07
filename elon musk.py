@@ -1,16 +1,62 @@
-# මෙය ගේම් ලූප් එක (While loop) ඇතුළත drawing කොටසට එකතු කරන්න
+import streamlit as st
+import random
 
-def display_message():
-    # පණිවිඩය පෙන්වන කොටුව (Dialogue Box)
-    box_rect = pygame.Rect(50, 450, 700, 100)
-    pygame.draw.rect(screen, (0, 0, 40), box_rect) # තද නිල් පාට පෙට්ටිය
-    pygame.draw.rect(screen, (0, 255, 255), box_rect, 2) # වටේට ලස්සන බෝඩර් එකක්
-    
-    # පණිවිඩය ලියමු
-    msg_font = pygame.font.SysFont("Arial", 28, bold=True)
-    text_surface = msg_font.render("Mission Control: Elon, I wish you a safe journey, Hero!", True, (255, 255, 255))
-    screen.blit(text_surface, (70, 485))
+# පූජනීය මතක් කිරීම: ඉසුරු විසින් නිර්මාණය කරන ලදී.
 
-# ගේම් එක පටන් අරන් ටික වෙලාවක් යනකම් මේක පෙන්නන්න
-if score < 300: 
-    display_message()
+st.set_page_config(page_title="Elon's Mars Mission", layout="centered")
+
+st.title("🚀 Elon's Mars Mission")
+st.subheader("Help Elon reach the Red Planet!")
+
+# --- Variable Initialization (මෙතන තමයි ඔයාට වැරදුණු තැන හදලා තියෙන්නේ) ---
+if 'score' not in st.session_state:
+    st.session_state.score = 0
+if 'game_over' not in st.session_state:
+    st.session_state.game_over = False
+
+# --- Game Logic Functions ---
+def reset_game():
+    st.session_state.score = 0
+    st.session_state.game_over = False
+
+# --- UI and Hero Message ---
+# ඔයාට කලින් Error එක ආපු තැන (Line 15 ආසන්නයේ)
+if st.session_state.score < 300:
+    st.info("🛰️ **Mission Control:** Elon, I wish you a safe journey, Hero!")
+
+# සරල ගේම් එකක් වගේ පෙනෙන්නට Button එකක් හදමු
+if not st.session_state.game_over:
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🚀 Boost Rocket"):
+            st.session_state.score += 50
+    with col2:
+        if st.button("☄️ Dodge Asteroid"):
+            st.session_state.score += 20
+            if random.random() < 0.1: # 10% chance to fail
+                st.session_state.game_over = True
+
+    # Progress Bar එකක් පෙන්වමු
+    progress = min(st.session_state.score / 1000, 1.0)
+    st.progress(progress)
+    st.write(f"Distance covered: **{st.session_state.score} km** / 1000 km")
+
+# --- Winning Condition ---
+if st.session_state.score >= 1000:
+    st.balloons()
+    st.success("🎉 **VICTORY!** You have successfully reached Mars.")
+    st.markdown("### 🏆 I wish you a safe journey, Hero!")
+    if st.button("Play Again"):
+        reset_game()
+        st.rerun()
+
+# --- Game Over Condition ---
+if st.session_state.game_over:
+    st.error("💥 Mission Failed! An asteroid hit the Starship.")
+    if st.button("Try Again"):
+        reset_game()
+        st.rerun()
+
+# --- Footer ---
+st.write("---")
+st.caption("Developed by Isuru | Supporting the mission to Mars")
